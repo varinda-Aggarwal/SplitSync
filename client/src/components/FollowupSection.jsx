@@ -30,7 +30,7 @@ function FollowupSection({
 
   const visibleItems = useMemo(() => items
     .filter((item) => filter === 'all' || item.status === filter)
-    .filter((item) => `${item.contact} ${item.note} ${item.type}`.toLowerCase().includes(query.toLowerCase()))
+    .filter((item) => `${item.contact} ${item.note} ${item.type} ${item.otherType || ''}`.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt)),
   [items, filter, query])
 
@@ -72,6 +72,7 @@ function FollowupSection({
           {visibleItems.length ? visibleItems.map((item) => {
             const id = item.id || item._id
             const overdue = item.status === 'upcoming' && new Date(item.dueAt) < new Date()
+            const typeLabel = item.type === 'other' ? item.otherType || 'Other' : item.type
             return (
               <article className="follow-row" key={id}>
                 <div className={`type-icon ${item.type}`}>
@@ -83,7 +84,7 @@ function FollowupSection({
                     <span className={`status ${overdue ? 'overdue' : item.status}`}>{overdue ? 'Overdue' : item.status}</span>
                   </div>
                   <p>{item.note}</p>
-                  <span className={overdue ? 'due overdue-text' : 'due'}>{icons.calendar} {formatDate(item.dueAt)} · {item.type}</span>
+                  <span className={overdue ? 'due overdue-text' : 'due'}>{icons.calendar} {formatDate(item.dueAt)} · {typeLabel}</span>
                 </div>
                 <div className="row-actions">
                   {item.status === 'upcoming' && (
@@ -120,6 +121,7 @@ function FollowupModal({ editing, contacts, initialContact, close, save }) {
     contact: editing?.contact || initialContact || '',
     note: editing?.note || '',
     type: editing?.type || 'call',
+    otherType: editing?.otherType || '',
     dueAt: toLocalDateTime(editing?.dueAt),
   })
 
@@ -129,8 +131,14 @@ function FollowupModal({ editing, contacts, initialContact, close, save }) {
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}>
       <form className="modal" onSubmit={(event) => {
         event.preventDefault()
-        if (form.contact.trim() && form.note.trim() && form.dueAt) {
-          save({ ...form, contact: form.contact.trim(), note: form.note.trim(), dueAt: new Date(form.dueAt).toISOString() })
+        if (form.contact.trim() && form.note.trim() && form.dueAt && (form.type !== 'other' || form.otherType.trim())) {
+          save({
+            ...form,
+            contact: form.contact.trim(),
+            note: form.note.trim(),
+            otherType: form.type === 'other' ? form.otherType.trim() : '',
+            dueAt: new Date(form.dueAt).toISOString(),
+          })
         }
       }}>
         <div className="modal-heading">
@@ -148,6 +156,11 @@ function FollowupModal({ editing, contacts, initialContact, close, save }) {
           </select></label>
           <label>Schedule for<input name="dueAt" type="datetime-local" value={form.dueAt} onChange={change} required /></label>
         </div>
+        {form.type === 'other' && (
+          <label>Specify follow-up type
+            <input name="otherType" value={form.otherType} onChange={change} placeholder="e.g. Send a document" required />
+          </label>
+        )}
         <div className="modal-actions"><button type="button" className="secondary-button" onClick={close}>Cancel</button><button className="primary-button" type="submit">{editing ? 'Save reschedule' : 'Schedule'}</button></div>
       </form>
     </div>

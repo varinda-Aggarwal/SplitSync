@@ -22,6 +22,11 @@ const followUpSchema = new mongoose.Schema(
       enum: ["call", "meeting", "email", "other"],
       default: "call"
     },
+    otherType: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     dueAt: {
       type: Date,
       required: true

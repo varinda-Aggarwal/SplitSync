@@ -24,9 +24,9 @@
 .profile strong { font-size: 13px; }
 .profile small { margin-top: 2px; color: var(--muted); font-size: 11px; }
 main { min-width: 0; }
-.topbar { height: 112px; display: flex; align-items: center; justify-content: space-between; padding: 0 42px; background: #fff; border-bottom: 1px solid var(--line); }
+.topbar { min-height: 112px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 42px; background: #fff; border-bottom: 1px solid var(--line); }
 .eyebrow { margin: 0 0 6px; color: #9a9daf; font-size: 10px; font-weight: 800; letter-spacing: 1.4px; }
-.topbar h1 { margin: 0; font-size: 27px; letter-spacing: -.5px; }
+.topbar h1 { margin: 0; font-size: 27px; letter-spacing: -.5px; overflow-wrap: anywhere; }
 .top-actions { display: flex; align-items: center; gap: 10px; }
 .notification-button { min-height: 42px; border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; color: var(--purple-dark); background: #fff; font-size: 12px; font-weight: 700; }
 .notification-button span { margin-right: 7px; }
@@ -60,6 +60,7 @@ main { min-width: 0; }
 .type-icon.meeting { color: #397db1; background: #edf5fb; }
 .type-icon.email { color: #b56b50; background: #fff2ec; }
 .follow-main { min-width: 0; }
+.follow-title h3, .follow-main p { overflow-wrap: anywhere; }
 .follow-title { display: flex; align-items: center; gap: 8px; }
 .follow-title h3, .follow-main p { margin: 0; }
 .follow-title h3 { font-size: 14px; }
@@ -136,19 +137,22 @@ main { min-width: 0; }
   .sidebar nav { height: 100%; margin: 0; grid-template-columns: repeat(3, 1fr); gap: 2px; }
   .nav-item { height: 50px; }
   main { padding-bottom: 66px; }
-  .topbar { height: 88px; padding: 0 16px; }
-  .topbar h1 { font-size: 22px; }
-  .notification-button { font-size: 0; padding: 0 12px; }
+  .topbar { min-height: 88px; padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+  .topbar h1 { font-size: clamp(18px, 5vw, 22px); }
+  .top-actions { gap: 6px; margin-left: auto; }
+  .notification-button { width: 40px; min-height: 40px; padding: 0; font-size: 0; }
   .notification-button span { margin: 0; font-size: 16px; }
-  .primary-button { padding-inline: 12px; }
+  .top-actions .primary-button { min-height: 40px; padding-inline: 10px; font-size: 12px; white-space: nowrap; }
   .content { padding: 18px 16px 30px; }
   .stats-grid { grid-template-columns: 1fr; gap: 10px; }
   .stat-card { min-height: 104px; }
   .toolbar { height: auto; align-items: stretch; flex-direction: column; gap: 10px; }
   .search { width: 100%; }
   .filters { overflow-x: auto; }
+  .filter { flex: 0 0 auto; }
   .follow-row { grid-template-columns: 42px minmax(0, 1fr); padding: 12px 0; }
   .row-actions { grid-column: 2; }
+  .follow-list { padding-inline: 14px; }
   .contacts-grid { grid-template-columns: 1fr; }
   .contact-detail-card { align-items: flex-start; flex-wrap: wrap; }
   .contact-detail-card .contact-links { width: 100%; margin-left: 74px; }

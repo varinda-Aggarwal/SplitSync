@@ -4,7 +4,7 @@ const followUpStatuses = ["upcoming", "done", "cancelled"];
 
 const createFollowUp = async (req, res) => {
   try {
-    const { contact, note, type, dueAt } = req.body;
+    const { contact, note, type, otherType, dueAt } = req.body;
     if (
       typeof contact !== "string" ||
       !contact.trim() ||
@@ -18,12 +18,16 @@ const createFollowUp = async (req, res) => {
     if (type !== undefined && !followUpTypes.includes(type)) {
       return res.status(400).json({ message: "Invalid follow-up type" });
     }
+    if (type === "other" && (typeof otherType !== "string" || !otherType.trim())) {
+      return res.status(400).json({ message: "Specify the follow-up type when type is other" });
+    }
 
     const followUp = await FollowUp.create({
       owner: req.userId,
       contact,
       note,
       type: type || "call",
+      otherType: type === "other" ? otherType.trim() : "",
       dueAt
     });
     res.status(201).json({ followUp });
@@ -69,7 +73,7 @@ const getDashboard = async (req, res) => {
 
 const updateFollowUp = async (req, res) => {
   try {
-    const allowed = ["contact", "note", "type", "dueAt", "status"];
+    const allowed = ["contact", "note", "type", "otherType", "dueAt", "status"];
     const updates = {};
     allowed.forEach((key) => {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
@@ -86,11 +90,24 @@ const updateFollowUp = async (req, res) => {
     if (updates.type !== undefined && !followUpTypes.includes(updates.type)) {
       return res.status(400).json({ message: "Invalid follow-up type" });
     }
+    if (updates.otherType !== undefined && typeof updates.otherType !== "string") {
+      return res.status(400).json({ message: "Specify the follow-up type using text" });
+    }
     if (updates.status !== undefined && !followUpStatuses.includes(updates.status)) {
       return res.status(400).json({ message: "Invalid follow-up status" });
     }
     if (updates.dueAt !== undefined && Number.isNaN(new Date(updates.dueAt).getTime())) {
       return res.status(400).json({ message: "A valid due date is required" });
+    }
+
+    if (updates.type === "other" || updates.otherType !== undefined) {
+      const current = await FollowUp.findOne({ _id: req.params.id, owner: req.userId }).select("type otherType");
+      if (!current) return res.status(404).json({ message: "Follow-up not found" });
+      const nextType = updates.type || current.type;
+      const nextOtherType = updates.otherType === undefined ? current.otherType : updates.otherType.trim();
+      if (nextType === "other" && !nextOtherType) {
+        return res.status(400).json({ message: "Specify the follow-up type when type is other" });
+      }
     }
 
     const followUp = await FollowUp.findOneAndUpdate(
