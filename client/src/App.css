@@ -28,8 +28,9 @@ main { min-width: 0; }
 .eyebrow { margin: 0 0 6px; color: #9a9daf; font-size: 10px; font-weight: 800; letter-spacing: 1.4px; }
 .topbar h1 { margin: 0; font-size: 27px; letter-spacing: -.5px; overflow-wrap: anywhere; }
 .top-actions { display: flex; align-items: center; gap: 10px; }
-.notification-button { min-height: 42px; border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; color: var(--purple-dark); background: #fff; font-size: 12px; font-weight: 700; }
-.notification-button span { margin-right: 7px; }
+.notification-button { min-height: 42px; display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; color: var(--purple-dark); background: #fff; font-size: 12px; font-weight: 700; }
+.notification-button span { display: inline-flex; align-items: center; }
+.bell-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .primary-button, .secondary-button, .text-button { border-radius: 8px; font-weight: 750; }
 .primary-button { min-height: 42px; border: 0; padding: 0 16px; color: #fff; background: var(--purple); box-shadow: 0 5px 14px rgba(98,87,184,.18); }
 .primary-button:hover { background: var(--purple-dark); }
@@ -141,7 +142,7 @@ main { min-width: 0; }
   .topbar h1 { font-size: clamp(18px, 5vw, 22px); }
   .top-actions { gap: 6px; margin-left: auto; }
   .notification-button { width: 40px; min-height: 40px; padding: 0; font-size: 0; }
-  .notification-button span { margin: 0; font-size: 16px; }
+  .notification-button span { margin: 0; }
   .top-actions .primary-button { min-height: 40px; padding-inline: 10px; font-size: 12px; white-space: nowrap; }
   .content { padding: 18px 16px 30px; }
   .stats-grid { grid-template-columns: 1fr; gap: 10px; }

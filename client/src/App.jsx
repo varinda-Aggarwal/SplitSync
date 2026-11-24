@@ -15,8 +15,16 @@ const seedFollowUps = [
 ]
 
 const icons = {
-  grid: '▦', users: '♙', clock: '◷', bell: '♢', plus: '+',
+  grid: '▦', users: '♙', clock: '◷', plus: '+',
   phone: '☎', mail: '✉', check: '✓'
+}
+
+function BellIcon() {
+  return (
+    <svg className="bell-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+    </svg>
+  )
 }
 
 function readStore(key, fallback) {
@@ -171,7 +179,7 @@ function App() {
           </div>
           <div className="top-actions">
             <button className="notification-button" onClick={requestNotifications}>
-              <span>{icons.bell}</span>
+              <span><BellIcon /></span>
               {notificationPermission === 'granted' ? 'Reminders on' : 'Enable reminders'}
             </button>
             <button className="primary-button" onClick={() => setPage('Follow-ups')}>View follow-ups</button>
