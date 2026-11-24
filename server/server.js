@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const balanceRoutes = require("./routes/balanceRoutes");
 const settlementRoutes = require("./routes/settlementRoutes");
+const followUpRoutes = require("./routes/followUpRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/balance", balanceRoutes);
 app.use("/api/settlement", settlementRoutes);
+app.use("/api/follow-ups", followUpRoutes);
 
 const PORT = process.env.PORT || 5000;
 
