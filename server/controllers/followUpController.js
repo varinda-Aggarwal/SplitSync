@@ -1,10 +1,22 @@
 const FollowUp = require("../models/FollowUp");
+const followUpTypes = ["call", "meeting", "email", "other"];
+const followUpStatuses = ["upcoming", "done", "cancelled"];
 
 const createFollowUp = async (req, res) => {
   try {
     const { contact, note, type, dueAt } = req.body;
-    if (!contact || !note || !dueAt) {
-      return res.status(400).json({ message: "Contact, note, and due date are required" });
+    if (
+      typeof contact !== "string" ||
+      !contact.trim() ||
+      typeof note !== "string" ||
+      !note.trim() ||
+      !dueAt ||
+      Number.isNaN(new Date(dueAt).getTime())
+    ) {
+      return res.status(400).json({ message: "Contact, note, and a valid due date are required" });
+    }
+    if (type !== undefined && !followUpTypes.includes(type)) {
+      return res.status(400).json({ message: "Invalid follow-up type" });
     }
 
     const followUp = await FollowUp.create({
@@ -32,14 +44,24 @@ const getFollowUps = async (req, res) => {
 const getDashboard = async (req, res) => {
   try {
     const now = new Date();
-    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const [upcoming, overdue, done] = await Promise.all([
-      FollowUp.countDocuments({ owner: req.userId, status: "upcoming", dueAt: { $gte: now, $lte: nextWeek } }),
+    const endOfToday = new Date(now);
+    endOfToday.setHours(23, 59, 59, 999);
+    const activeQuery = { owner: req.userId, status: "upcoming" };
+    const [dueToday, upcoming, overdue, items] = await Promise.all([
+      FollowUp.countDocuments({ ...activeQuery, dueAt: { $gte: now, $lte: endOfToday } }),
+      FollowUp.countDocuments({ ...activeQuery, dueAt: { $gt: endOfToday } }),
       FollowUp.countDocuments({ owner: req.userId, status: "upcoming", dueAt: { $lt: now } }),
-      FollowUp.countDocuments({ owner: req.userId, status: "done" })
+      FollowUp.find(activeQuery)
+        .select("note dueAt contact")
+        .sort({ dueAt: 1 })
+        .limit(10)
     ]);
-    const items = await FollowUp.find({ owner: req.userId }).sort({ dueAt: 1 }).limit(10);
-    res.status(200).json({ upcoming, overdue, done, items });
+    res.status(200).json({
+      dueToday,
+      upcoming,
+      overdue,
+      items: items.map(({ _id, note, dueAt, contact }) => ({ _id, note, dueAt, contact }))
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -52,6 +74,24 @@ const updateFollowUp = async (req, res) => {
     allowed.forEach((key) => {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
     });
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "At least one valid follow-up field is required" });
+    }
+    if (updates.contact !== undefined && (typeof updates.contact !== "string" || !updates.contact.trim())) {
+      return res.status(400).json({ message: "Contact must be a non-empty string" });
+    }
+    if (updates.note !== undefined && (typeof updates.note !== "string" || !updates.note.trim())) {
+      return res.status(400).json({ message: "Note must be a non-empty string" });
+    }
+    if (updates.type !== undefined && !followUpTypes.includes(updates.type)) {
+      return res.status(400).json({ message: "Invalid follow-up type" });
+    }
+    if (updates.status !== undefined && !followUpStatuses.includes(updates.status)) {
+      return res.status(400).json({ message: "Invalid follow-up status" });
+    }
+    if (updates.dueAt !== undefined && Number.isNaN(new Date(updates.dueAt).getTime())) {
+      return res.status(400).json({ message: "A valid due date is required" });
+    }
 
     const followUp = await FollowUp.findOneAndUpdate(
       { _id: req.params.id, owner: req.userId },
